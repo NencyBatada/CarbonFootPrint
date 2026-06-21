@@ -13,7 +13,7 @@ const impactColorMap: Record<string, string> = {
   low: '#10b981',
 };
 
-export const ActionCard: React.FC<ActionCardProps> = ({ action, onToggle }) => {
+export const ActionCard: React.FC<ActionCardProps> = React.memo(({ action, onToggle }) => {
   const impactColor = action.completed ? 'var(--primary)' : (impactColorMap[action.impact] ?? '#10b981');
 
   return (
@@ -93,4 +93,4 @@ export const ActionCard: React.FC<ActionCardProps> = ({ action, onToggle }) => {
       </div>
     </article>
   );
-};
+});

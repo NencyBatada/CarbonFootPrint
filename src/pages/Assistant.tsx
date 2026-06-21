@@ -68,7 +68,20 @@ export const Assistant: React.FC = () => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage = input.trim();
+    // Simple XSS sanitization
+    const sanitizeHTML = (str: string) => {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
+    };
+
+    const userMessage = sanitizeHTML(input.trim());
     addChatMessage('user', userMessage);
     setInput('');
     setIsTyping(true);

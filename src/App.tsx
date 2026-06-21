@@ -5,6 +5,7 @@ import { Footer } from './components/Footer';
 import { Dashboard } from './pages/Dashboard';
 import { Calculator } from './pages/Calculator';
 import { Assistant } from './pages/Assistant';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 function App() {
   return (
@@ -12,12 +13,14 @@ function App() {
       <Router>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Navbar />
-          <main style={{ flexGrow: 1 }}>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/calculator" element={<Calculator />} />
-              <Route path="/assistant" element={<Assistant />} />
-            </Routes>
+          <main id="main-content" style={{ flexGrow: 1 }}>
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/calculator" element={<Calculator />} />
+                <Route path="/assistant" element={<Assistant />} />
+              </Routes>
+            </ErrorBoundary>
           </main>
           <Footer />
         </div>
