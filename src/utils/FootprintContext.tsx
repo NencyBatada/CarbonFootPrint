@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { calculateEmissions } from './calculations';
 
 export interface FootprintData {
   transport: {
@@ -117,8 +118,8 @@ export const FootprintProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>(() => {
     const saved = localStorage.getItem('carbon_chat_history');
     if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.map((msg: any) => ({
+      const parsed = JSON.parse(saved) as Array<Omit<ChatMessage, 'timestamp'> & { timestamp: string }>;
+      return parsed.map((msg) => ({
         ...msg,
         timestamp: new Date(msg.timestamp)
       }));
@@ -145,77 +146,47 @@ export const FootprintProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     localStorage.setItem('carbon_chat_history', JSON.stringify(chatHistory));
   }, [chatHistory]);
 
-  const updateData = (newData: Partial<FootprintData>) => {
+  const updateData = useCallback((newData: Partial<FootprintData>) => {
     setData((prev) => ({ ...prev, ...newData }));
-  };
+  }, []);
 
-  const calculateEmissions = () => {
-    // 1. Transport calculations: CO2 emissions per year
-    // Factors (kg CO2 per km): Car = 0.18, EV = 0.05, Transit = 0.04, Bike = 0
-    let transFactor = 0.18;
-    if (data.transport.mode === 'ev') transFactor = 0.05;
-    else if (data.transport.mode === 'transit') transFactor = 0.04;
-    else if (data.transport.mode === 'bike') transFactor = 0;
-    
-    const transportEmissions = data.transport.distance * 52 * transFactor;
+  // Delegated to the pure, testable calculateEmissions utility
 
-    // 2. Diet calculations: CO2 emissions per year
-    // Factors (kg CO2 per year): Heavy meat = 2900, Balanced = 1900, Veg = 1200, Vegan = 700
-    let dietEmissions = 1900;
-    if (data.diet.type === 'heavy-meat') dietEmissions = 2900;
-    else if (data.diet.type === 'vegetarian') dietEmissions = 1200;
-    else if (data.diet.type === 'vegan') dietEmissions = 700;
-
-    // 3. Energy calculations: CO2 emissions per year
-    // Factor: Average of 0.4 kg CO2 per kWh. If renewable, reduced by 85%
-    const energyFactor = data.energy.renewable ? 0.06 : 0.4;
-    const energyEmissions = data.energy.electricity * 12 * energyFactor;
-
-    const total = transportEmissions + dietEmissions + energyEmissions;
-
-    return {
-      transport: Math.round(transportEmissions),
-      diet: Math.round(dietEmissions),
-      energy: Math.round(energyEmissions),
-      total: Math.round(total)
-    };
-  };
-
-  const toggleAction = (id: string) => {
+  const toggleAction = useCallback((id: string) => {
     setActions((prev) =>
       prev.map((act) => (act.id === id ? { ...act, completed: !act.completed } : act))
     );
-  };
+  }, []);
 
-  const addChatMessage = (sender: 'user' | 'assistant', text: string) => {
+  const addChatMessage = useCallback((sender: 'user' | 'assistant', text: string) => {
     setChatHistory((prev) => [
       ...prev,
       {
-        id: Math.random().toString(36).substr(2, 9),
+        id: crypto.randomUUID(),
         sender,
         text,
         timestamp: new Date()
       }
     ]);
-  };
+  }, []);
 
-  const clearHistory = () => {
+  const clearHistory = useCallback(() => {
     setChatHistory([
       {
         id: 'welcome',
         sender: 'assistant',
-        text: 'Hello! Let\'s clean up your chat and restart our carbon reduction planning. How can I help you today?',
+        text: "Hello! Let's clean up your chat and restart our carbon reduction planning. How can I help you today?",
         timestamp: new Date()
       }
     ]);
-  };
+  }, []);
 
   return (
     <FootprintContext.Provider
       value={{
         data,
         updateData,
-        calculatedEmissions: calculateEmissions(),
+        calculatedEmissions: calculateEmissions(data),
         actions,
         toggleAction,
         chatHistory,

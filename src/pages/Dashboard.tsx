@@ -56,8 +56,8 @@ export const Dashboard: React.FC = () => {
             Track, understand, and offset your personal environmental impact.
           </p>
         </div>
-        <Link to="/calculator" className="btn-primary">
-          <Leaf size={18} /> Update Calculator
+        <Link to="/calculator" className="btn-primary" aria-label="Go to calculator to update your data">
+          <Leaf size={18} aria-hidden="true" /> Update Calculator
         </Link>
       </header>
 
@@ -71,10 +71,10 @@ export const Dashboard: React.FC = () => {
               <Leaf style={{ color: 'var(--primary)' }} /> Personal Carbon Footprint
             </h2>
             <div style={{ margin: '30px 0', textAlign: 'center' }}>
-              <span style={{ fontSize: '4rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>
+              <span aria-label={`${(totalEmissions / 1000).toFixed(1)} tons of CO2 equivalent per year`} style={{ fontSize: '4rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>
                 {(totalEmissions / 1000).toFixed(1)}
               </span>
-              <span style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginLeft: '8px' }}>
+              <span aria-hidden="true" style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginLeft: '8px' }}>
                 tons CO2e / year
               </span>
             </div>
@@ -101,7 +101,7 @@ export const Dashboard: React.FC = () => {
           <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '20px' }}>
             Emissions Breakdown
           </h2>
-          <div style={{ height: '220px', width: '100%' }}>
+          <div style={{ height: '220px', width: '100%' }} role="img" aria-label={`Pie chart: Transport ${Math.round((calculatedEmissions.transport / (totalEmissions || 1)) * 100)}%, Diet ${Math.round((calculatedEmissions.diet / (totalEmissions || 1)) * 100)}%, Energy ${Math.round((calculatedEmissions.energy / (totalEmissions || 1)) * 100)}%`}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -140,13 +140,13 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Comparisons & Equivalency Cards */}
-      <section style={{ marginBottom: '48px' }}>
-        <h2 style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '24px' }}>
+      <section aria-labelledby="equivalencies-heading" style={{ marginBottom: '48px' }}>
+        <h2 id="equivalencies-heading" style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '24px' }}>
           Environmental Equivalencies
         </h2>
         <div className="grid-3">
           <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '16px', borderRadius: '12px' }}>
+            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '16px', borderRadius: '12px' }} aria-hidden="true">
               <Leaf size={32} style={{ color: 'var(--primary)' }} />
             </div>
             <div>
@@ -155,7 +155,7 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ background: 'rgba(6, 182, 212, 0.1)', padding: '16px', borderRadius: '12px' }}>
+            <div style={{ background: 'rgba(6, 182, 212, 0.1)', padding: '16px', borderRadius: '12px' }} aria-hidden="true">
               <Car size={32} style={{ color: 'var(--secondary)' }} />
             </div>
             <div>
@@ -164,7 +164,7 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '16px', borderRadius: '12px' }}>
+            <div style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '16px', borderRadius: '12px' }} aria-hidden="true">
               <Zap size={32} style={{ color: 'var(--accent)' }} />
             </div>
             <div>
@@ -186,7 +186,7 @@ export const Dashboard: React.FC = () => {
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '20px' }}>
             Comparison against regional statistics and global sustainability targets.
           </p>
-          <div style={{ height: '240px', width: '100%' }}>
+          <div style={{ height: '240px', width: '100%' }} role="img" aria-label="Bar chart comparing your footprint to US Average 16000 kg, Global Average 4700 kg, and Climate Target 2000 kg CO2 per year">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dataCompare} layout="vertical" margin={{ left: 20, right: 20 }}>
                 <XAxis type="number" stroke="var(--text-muted)" fontSize={12} />

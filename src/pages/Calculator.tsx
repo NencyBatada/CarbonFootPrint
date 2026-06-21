@@ -8,7 +8,6 @@ export const Calculator: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
-  // Local state initialized with context data
   const [transportMode, setTransportMode] = useState(data.transport.mode);
   const [distance, setDistance] = useState(data.transport.distance);
   const [dietType, setDietType] = useState(data.diet.type);
@@ -28,67 +27,46 @@ export const Calculator: React.FC = () => {
     updateData({
       transport: { mode: transportMode, distance },
       diet: { type: dietType },
-      energy: { electricity, renewable }
+      energy: { electricity, renewable },
     });
     navigate('/');
   };
 
-  const renderStepIndicator = () => {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            backgroundColor: step >= 1 ? 'var(--primary)' : 'rgba(255, 255, 255, 0.05)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 600,
-            border: step === 1 ? '2px solid #fff' : 'none'
-          }}>
-            1
-          </span>
-          <span style={{ fontSize: '0.9rem', color: step === 1 ? 'var(--text-primary)' : 'var(--text-secondary)' }}>Transport</span>
-        </div>
-        <div style={{ width: '40px', height: '1px', backgroundColor: 'var(--border-color)' }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            backgroundColor: step >= 2 ? 'var(--primary)' : 'rgba(255, 255, 255, 0.05)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 600,
-            border: step === 2 ? '2px solid #fff' : 'none'
-          }}>
-            2
-          </span>
-          <span style={{ fontSize: '0.9rem', color: step === 2 ? 'var(--text-primary)' : 'var(--text-secondary)' }}>Diet</span>
-        </div>
-        <div style={{ width: '40px', height: '1px', backgroundColor: 'var(--border-color)' }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            backgroundColor: step >= 3 ? 'var(--primary)' : 'rgba(255, 255, 255, 0.05)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 600,
-            border: step === 3 ? '2px solid #fff' : 'none'
-          }}>
-            3
-          </span>
-          <span style={{ fontSize: '0.9rem', color: step === 3 ? 'var(--text-primary)' : 'var(--text-secondary)' }}>Energy</span>
-        </div>
-      </div>
-    );
-  };
+  const stepLabels: Record<number, string> = { 1: 'Transport', 2: 'Diet', 3: 'Energy' };
+
+  const renderStepIndicator = () => (
+    <nav aria-label="Form progress" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
+      {([1, 2, 3] as const).map((s, i, arr) => (
+        <React.Fragment key={s}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span
+              aria-current={step === s ? 'step' : undefined}
+              aria-label={`Step ${s}: ${stepLabels[s]}${step > s ? ' (completed)' : step === s ? ' (current)' : ''}`}
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                backgroundColor: step >= s ? 'var(--primary)' : 'rgba(255, 255, 255, 0.05)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 600,
+                border: step === s ? '2px solid #fff' : 'none',
+              }}
+            >
+              {s}
+            </span>
+            <span style={{ fontSize: '0.9rem', color: step === s ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+              {stepLabels[s]}
+            </span>
+          </div>
+          {i < arr.length - 1 && (
+            <div role="separator" style={{ width: '40px', height: '1px', backgroundColor: 'var(--border-color)' }} />
+          )}
+        </React.Fragment>
+      ))}
+    </nav>
+  );
 
   return (
     <div className="container" style={{ maxWidth: '680px' }}>
@@ -103,20 +81,24 @@ export const Calculator: React.FC = () => {
 
       {renderStepIndicator()}
 
-      <form onSubmit={handleSubmit} className="glass-card" style={{ padding: '32px' }}>
+      <form onSubmit={handleSubmit} className="glass-card" style={{ padding: '32px' }} aria-label={`Step ${step} of 3: ${stepLabels[step]}`}>
+
         {/* Step 1: Transport */}
         {step === 1 && (
           <div>
             <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Car style={{ color: 'var(--secondary)' }} /> Transport Habits
+              <Car style={{ color: 'var(--secondary)' }} aria-hidden="true" /> Transport Habits
             </h2>
-            
+
             <div className="form-group">
-              <label className="form-label">Primary Mode of Transport</label>
-              <select 
-                className="form-select" 
+              <label className="form-label" htmlFor="transport-mode">
+                Primary Mode of Transport
+              </label>
+              <select
+                id="transport-mode"
+                className="form-select"
                 value={transportMode}
-                onChange={(e) => setTransportMode(e.target.value as any)}
+                onChange={(e) => setTransportMode(e.target.value as typeof transportMode)}
               >
                 <option value="car">Gasoline Car (Internal Combustion)</option>
                 <option value="ev">Electric Vehicle (EV)</option>
@@ -126,17 +108,21 @@ export const Calculator: React.FC = () => {
             </div>
 
             <div className="form-group" style={{ marginBottom: '30px' }}>
-              <label className="form-label">Weekly Distance Traveled (km)</label>
-              <input 
-                type="number" 
+              <label className="form-label" htmlFor="weekly-distance">
+                Weekly Distance Traveled (km)
+              </label>
+              <input
+                id="weekly-distance"
+                type="number"
                 min="0"
-                className="form-input" 
-                value={distance} 
+                className="form-input"
+                value={distance}
                 onChange={(e) => setDistance(Number(e.target.value))}
                 placeholder="e.g. 150"
                 required
+                aria-describedby="distance-hint"
               />
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+              <span id="distance-hint" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
                 Average daily commute + weekend trips.
               </span>
             </div>
@@ -147,22 +133,25 @@ export const Calculator: React.FC = () => {
         {step === 2 && (
           <div>
             <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Utensils style={{ color: 'var(--accent)' }} /> Dietary Preferences
+              <Utensils style={{ color: 'var(--accent)' }} aria-hidden="true" /> Dietary Preferences
             </h2>
 
             <div className="form-group" style={{ marginBottom: '30px' }}>
-              <label className="form-label">Which best describes your diet?</label>
-              <select 
-                className="form-select" 
+              <label className="form-label" htmlFor="diet-type">
+                Which best describes your diet?
+              </label>
+              <select
+                id="diet-type"
+                className="form-select"
                 value={dietType}
-                onChange={(e) => setDietType(e.target.value as any)}
+                onChange={(e) => setDietType(e.target.value as typeof dietType)}
               >
                 <option value="heavy-meat">Heavy Meat Eater (Daily beef/pork/poultry)</option>
                 <option value="balanced">Balanced (Mix of meat, veggies, dairy)</option>
                 <option value="vegetarian">Vegetarian (No meat, consumes dairy/eggs)</option>
                 <option value="vegan">Vegan (Strictly plant-based)</option>
               </select>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px', display: 'block' }}>
+              <span id="diet-hint" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px', display: 'block' }}>
                 Red meat consumption has the highest agricultural greenhouse gas footprint.
               </span>
             </div>
@@ -173,29 +162,38 @@ export const Calculator: React.FC = () => {
         {step === 3 && (
           <div>
             <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Zap style={{ color: 'var(--primary)' }} /> Home Energy Usage
+              <Zap style={{ color: 'var(--primary)' }} aria-hidden="true" /> Home Energy Usage
             </h2>
 
             <div className="form-group">
-              <label className="form-label">Monthly Electricity Consumption (kWh)</label>
-              <input 
-                type="number" 
+              <label className="form-label" htmlFor="electricity-usage">
+                Monthly Electricity Consumption (kWh)
+              </label>
+              <input
+                id="electricity-usage"
+                type="number"
                 min="0"
-                className="form-input" 
-                value={electricity} 
+                className="form-input"
+                value={electricity}
                 onChange={(e) => setElectricity(Number(e.target.value))}
                 placeholder="e.g. 250"
                 required
+                aria-describedby="electricity-hint"
               />
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+              <span id="electricity-hint" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
                 You can find this on your electricity bill.
               </span>
             </div>
 
             <div className="form-group" style={{ marginBottom: '30px' }}>
-              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input 
-                  type="checkbox" 
+              <label
+                className="form-label"
+                htmlFor="renewable-energy"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+              >
+                <input
+                  id="renewable-energy"
+                  type="checkbox"
                   checked={renewable}
                   onChange={(e) => setRenewable(e.target.checked)}
                   style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--primary)' }}
@@ -213,7 +211,7 @@ export const Calculator: React.FC = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
           {step > 1 ? (
             <button type="button" onClick={handleBack} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ChevronLeft size={16} /> Back
+              <ChevronLeft size={16} aria-hidden="true" /> Back
             </button>
           ) : (
             <div />
@@ -221,11 +219,11 @@ export const Calculator: React.FC = () => {
 
           {step < 3 ? (
             <button type="button" onClick={handleNext} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              Next <ChevronRight size={16} />
+              Next <ChevronRight size={16} aria-hidden="true" />
             </button>
           ) : (
             <button type="submit" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Check size={16} /> Complete & Save
+              <Check size={16} aria-hidden="true" /> Complete &amp; Save
             </button>
           )}
         </div>
