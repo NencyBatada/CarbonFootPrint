@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { FootprintProvider, useFootprint } from '../utils/FootprintContext';
-import React from 'react';
 
 describe('FootprintContext', () => {
   beforeEach(() => {

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
-import React from 'react';
 
 const ProblemChild = () => {
   throw new Error('Test error');
@@ -54,6 +53,7 @@ describe('ErrorBoundary', () => {
     fireEvent.click(screen.getByRole('button', { name: /reload page/i }));
     expect(window.location.reload).toHaveBeenCalled();
 
+    // @ts-ignore
     window.location = originalLocation;
     spy.mockRestore();
   });
